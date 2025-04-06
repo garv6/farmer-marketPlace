@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .cart-count {
+            display: inline-block;
+            background-color: #ff4d4d;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            line-height: 24px;
+            margin-left: 8px;
+        }
+        #log {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Cart Functionality Test</h1>
+    
+    <div>
+        <h2>Current Cart: <span id="cartCount" class="cart-count">0</span></h2>
+        <button id="addItem">Add Test Item</button>
+        <button id="clearCart">Clear Cart</button>
+        <button id="dispatchEvent">Dispatch cartUpdated Event</button>
+        <button id="testAll">Run Complete Test</button>
+    </div>
+
+    <div id="log">
+        <p>Cart test initialized...</p>
+    </div>
+
+    <script>
+        // DOM elements
+        const cartCountEl = document.getElementById('cartCount');
+        const addItemBtn = document.getElementById('addItem');
+        const clearCartBtn = document.getElementById('clearCart');
+        const dispatchEventBtn = document.getElementById('dispatchEvent');
+        const testAllBtn = document.getElementById('testAll');
+        const logEl = document.getElementById('log');
+
+        // Log function
+        function log(message, isError = false) {
+            const entry = document.createElement('p');
+            entry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            entry.className = isError ? 'error' : 'success';
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(message);
+        }
+
+        // Update cart count display
+        function updateCartCount() {
+            try {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const count = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+                cartCountEl.textContent = count;
+                log(`Cart count updated: ${count}`);
+            } catch (error) {
+                log(`Error updating cart count: ${error.message}`, true);
+                cartCountEl.textContent = '0';
+            }
+        }
+
+        // Add item to cart
+        function addItemToCart() {
+            try {
+                // Create test item - using a consistent ID to test proper quantity updating
+                const testItem = {
+                    id: 'test-item-1', // Fixed ID to test quantity updating
+                    name: 'Test Product',
+                    price: 9.99,
+                    image: 'https://via.placeholder.com/150',
+                    quantity: 1
+                };
+                
+                // Get current cart
+                let cart = [];
+                try {
+                    const cartData = localStorage.getItem('cart');
+                    if (cartData) {
+                        cart = JSON.parse(cartData);
+                        if (!Array.isArray(cart)) {
+                            log('Cart is not an array, resetting', true);
+                            cart = [];
+                        }
+                    }
+                } catch (error) {
+                    log(`Error parsing cart: ${error.message}`, true);
+                    cart = [];
+                }
+                
+                // Check if product already exists in cart
+                const existingItemIndex = cart.findIndex(item => item.id === testItem.id);
+                
+                if (existingItemIndex >= 0) {
+                    // Update quantity if product already exists
+                    cart[existingItemIndex].quantity += 1;
+                    log(`Updated quantity for ${testItem.name} in cart. New quantity: ${cart[existingItemIndex].quantity}`);
+                } else {
+                    // Add new item to cart
+                    cart.push(testItem);
+                    log(`Added new ${testItem.name} to cart`);
+                }
+                
+                // Save cart
+                localStorage.setItem('cart', JSON.stringify(cart));
+                const itemCount = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+                log(`Cart now has ${cart.length} unique items and ${itemCount} total items`);
+                
+                // Update display
+                updateCartCount();
+                
+                // Dispatch event
+                window.dispatchEvent(new Event('cartUpdated'));
+                log('cartUpdated event dispatched');
+                
+                return true;
+            } catch (error) {
+                log(`Error adding item to cart: ${error.message}`, true);
+                return false;
+            }
+        }
+
+        // Clear cart
+        function clearCart() {
+            try {
+                localStorage.removeItem('cart');
+                log('Cart cleared');
+                updateCartCount();
+                window.dispatchEvent(new Event('cartUpdated'));
+                return true;
+            } catch (error) {
+                log(`Error clearing cart: ${error.message}`, true);
+                return false;
+            }
+        }
+
+        // Dispatch cartUpdated event manually
+        function dispatchCartEvent() {
+            try {
+                window.dispatchEvent(new Event('cartUpdated'));
+                log('cartUpdated event manually dispatched');
+                return true;
+            } catch (error) {
+                log(`Error dispatching event: ${error.message}`, true);
+                return false;
+            }
+        }
+
+        // Run complete test
+        function runCompleteTest() {
+            log('Starting complete test sequence...');
+            
+            // Clear cart first
+            clearCart();
+            
+            // Add multiple items with delay
+            setTimeout(() => {
+                addItemToCart();
+                
+                setTimeout(() => {
+                    addItemToCart();
+                    
+                    setTimeout(() => {
+                        addItemToCart();
+                        log('Complete test finished');
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+
+        // Event listeners
+        addItemBtn.addEventListener('click', addItemToCart);
+        clearCartBtn.addEventListener('click', clearCart);
+        dispatchEventBtn.addEventListener('click', dispatchCartEvent);
+        testAllBtn.addEventListener('click', runCompleteTest);
+
+        // Setup cart updated event listener
+        window.addEventListener('cartUpdated', () => {
+            log('cartUpdated event received');
+            updateCartCount();
+        });
+
+        // Setup storage event listener
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'cart') {
+                log('storage event detected for cart');
+                updateCartCount();
+            }
+        });
+
+        // Initial cart count
+        updateCartCount();
+        log('Cart test page initialized');
+    </script>
+</body>
+</html>

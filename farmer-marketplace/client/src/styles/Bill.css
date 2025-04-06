@@ -1,0 +1,16 @@
+.bill-page {
+    padding: 20px;
+    text-align: center;
+}
+
+.bill-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.bill-page h3 {
+    margin-top: 16px;
+    color: #4CAF50;
+}

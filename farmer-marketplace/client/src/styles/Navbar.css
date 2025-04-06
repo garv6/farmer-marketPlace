@@ -1,0 +1,116 @@
+/* General Navbar Styles */
+nav {
+    background-color: #333;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+nav .logo h2 {
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+nav .right ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+nav .right ul li {
+    margin-right: 30px; /* Space between items */
+    font-size: 1rem;
+}
+
+nav .right ul li:last-child {
+    margin-right: 0; /* No margin on the last item */
+}
+
+nav .right ul li a,
+nav .right ul li button {
+    color: white;
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Hover Effects for Links and Buttons */
+nav .right ul li a:hover,
+nav .right ul li button:hover {
+    color: #ffcc00; /* Change text color on hover */
+}
+
+nav .right ul li button {
+    background-color: #ff4d4d;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+nav .right ul li button:hover {
+    background-color: #ff3333;
+    transform: translateY(-2px); /* Slight lift effect on hover */
+}
+
+nav .right ul li a {
+    font-weight: 500;
+}
+
+/* Cart Link Styles */
+.cart-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cart-badge {
+    background-color: #ff4d4d;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    nav .right ul {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    nav .right ul li {
+        margin-right: 0;
+        width: 100%;
+        padding: 10px 0;
+        text-align: left;
+    }
+
+    nav .right ul li a,
+    nav .right ul li button {
+        width: 100%;
+        padding: 12px;
+        text-align: center;
+    }
+}
